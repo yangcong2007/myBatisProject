@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- mapper:根标签，namespace：命名空间，随便写，一般保证命名空间唯一 -->
+
+<mapper namespace="UserDao">
+   <!-- statement，内容：sql语句。id：唯一标识，随便写，在同一个命名空间下保持唯一
+      resultType：sql语句查询结果集的封装类型,tb_user即为数据库中的表
+    -->
+	<resultMap type="com.cc.entity.User" id="resultUser">
+		<result column="user_name" property="userName"/>
+	</resultMap>
+   <select id="selectUser" resultMap="resultUser">
+      select * from tb_user where id = #{id};
+   </select>
+   <delete id="deleteUser">
+      delete from tb_user where id = #{id};
+   </delete>
+   <update id="updateUser" parameterType="User">
+      update tb_user u  
+      <trim prefix="set" prefixOverrides=",">
+      	<if test="userName != null">u.user_name = #{userName},</if>
+      	<if test="password != null">u.password = #{password},</if>
+      	<if test="name != null">u.name = #{name},</if>
+      	<if test="age != null">u.age = #{age},</if>
+      	<if test="sex != null">u.sex = #{sex},</if>
+      	<if test="birthday != null">u.birthday = #{birthday},</if>
+      	updated = now() 
+      </trim>
+      where id = #{id};
+      <!-- 参数应该在实体类中有对应的getter方法，test中的和=右边的为实体类的参数 -->
+   </update>
+   <insert id="insertUser" parameterType="com.cc.entity.User">
+      insert into tb_user (user_name,password,name,age,sex,birthday,created,updated) 
+      values(#{userName},#{password},#{name},#{age},#{sex},#{birthday},now(),now()); 
+      <!-- id设置了自增，所以插入语句的时候不用写id了，否则需要给id赋值 -->
+   </insert>
+   <select id="findAll" resultMap="resultUser">
+      select * from tb_user ;
+   </select>
+</mapper>

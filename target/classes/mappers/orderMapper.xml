@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+  <mapper namespace="com.cc.dao.OrderMapper">
+
+  	
+  	<resultMap type="com.cc.entity.Order" id="OrderUserResultMap" autoMapping="true">
+  		<id column="id" property="id"/>
+  		<association property="user" javaType="User" autoMapping="true">
+  			<id column="user_id" property="id"/>
+  		</association>
+  	</resultMap>
+  	
+  	<select id="queryOrderAndUserByOrderNo" resultMap="OrderUserResultMap">
+   		select * from tb_order o left join tb_user u on o.user_id=u.id where o.order_number = #{number}
+	</select>
+	
+	<resultMap type="com.cc.entity.Order" id="OrderUserDetailResultMap" autoMapping="true" extends="OrderUserResultMap">
+  		<collection property="orderDetailList" javaType="List" ofType="OrderDetail" autoMapping="true">
+  			<id column="id" property="id"/>
+  		</collection>
+  	</resultMap>
+  	
+  	<select id="queryOrderWithUserAndDetailByOrderNo" resultMap="OrderUserDetailResultMap">
+  		select * from tb_order o 
+  		left join tb_user u on o.user_id=u.id
+  		left join tb_orderdetail d on d.order_id = o.id
+  		where o.order_number = #{number}
+  	</select>
+  	
+  	<resultMap type="Order" id="OrderUserDetailItemResultMap" autoMapping="true">
+  		<id column="id" property="id"/>
+  		<association property="user" javaType="User" autoMapping="true">
+  			<id column="user_id" property="id"/>
+  		</association>
+  		
+  		<collection property="orderDetailList" javaType="List" ofType="OrderDetail" autoMapping="true">
+  			<id column="detail_id" property="id"/>
+  			<association property="item" javaType="Item" autoMapping="true" >
+  				<id column="item_id" property="id"/>
+  			</association>
+  		</collection>
+  		
+  	</resultMap>
+  	
+  	<select id="queryOrderWithUserAndDetailItemByOrderNumber" resultMap="OrderUserDetailItemResultMap">
+  		select * ,od.id as detail_id from tb_order o
+   		left join tb_user u on o.user_id=u.id
+   		left join tb_orderdetail od on o.id=od.order_id
+   		left join tb_item i on od.item_id=i.id
+   		where o.order_number = #{number}
+  	</select>
+  	
+  	<resultMap type="Order" id="lazyOrderUserResultMap">
+  		<id column="id" property="id"/>
+  		<association property="user" javaType="User" autoMapping="true" select="getUser" column="user_id">
+  			<id column="user_id" property="id"/>
+  		</association>
+  	</resultMap>
+  	
+  	<select id="getUser" resultType="User">
+  		select * from tb_user u where u.id = #{id}
+  	</select>
+  	<select id="lazyGetOrderAndUserByNo" resultMap="lazyOrderUserResultMap">
+  		select * from tb_order o where o.order_number = #{number}
+  	</select>
+  </mapper>
